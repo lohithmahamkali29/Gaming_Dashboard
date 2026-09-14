@@ -1,8 +1,3 @@
-Create/update the project's README.md as a professional GitHub repository README.
-
-IMPORTANT:
-Document the CURRENT implementation honestly.
-Do not claim real F1 25 telemetry or Raspberry Pi deployment is complete if it is not.
 
 Project name:
 
