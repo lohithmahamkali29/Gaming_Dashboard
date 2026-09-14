@@ -1,0 +1,8 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}{{ race.name }} | Race Control{% endblock %}
+{% block content %}
+<section class="race-header"><div><a class="back" href="{% url 'dashboard' %}">&#8592; Overview</a><p class="eyebrow">LIVE RACE MONITOR</p><h1>{{ race.name }}</h1><p class="lede">{{ race.track|default:'Track to be confirmed' }} / {{ race.total_laps }} laps</p></div><div><span id="race-status" class="status status-{{ race.status }}">{{ race.status }}</span><button id="start-race" class="button" data-race-id="{{ race.pk }}">Start race</button></div></section>
+<section id="leaderboard" class="leaderboard">{% for entry in race.entries.all %}<div class="leader-row"><strong class="position">{{ entry.position }}</strong><div><strong>{{ entry.driver_name }}</strong><small>{{ entry.rig.name }}{% if entry.car %} / {{ entry.car }}{% endif %}</small></div><span class="lap">L{{ entry.current_lap }}/{{ race.total_laps }}</span><span class="time">{{ entry.lap_time|default:'--'|floatformat:3 }}s</span></div>{% empty %}<div class="empty">Add race entries in the admin panel.</div>{% endfor %}</section>
+<script>window.RACE_ID = {{ race.pk }};</script><script src="{% static 'dashboard/live.js' %}"></script>
+{% endblock %}

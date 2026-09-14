@@ -1,0 +1,42 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Race History | Race Control{% endblock %}
+{% block content %}
+<section class="section-heading"><h2>Race history</h2></section>
+<form method="get" class="filter-form">
+  <div class="field-row"><label>Search</label><input type="text" name="search" value="{{ search }}" placeholder="Lohith, Monza, etc."></div>
+  <div class="field-row"><label>Simulator</label><input type="text" name="simulator" value="{{ simulator }}" list="simulator-list"></div>
+  <div class="field-row"><label>Track</label><input type="text" name="track" value="{{ track }}"></div>
+  <div class="field-row"><label>Racer</label><select name="racer"><option value="">All racers</option>{% for racer in racers %}<option value="{{ racer.name }}" {% if racer.name == request.GET.racer %}selected{% endif %}>{{ racer.name }}</option>{% endfor %}</select></div>
+  <div class="field-row"><label>Status</label><select name="status"><option value="">All</option>{% for value, label in race_status_choices %}<option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <div class="field-row"><label>From</label><input type="date" name="date_from" value="{{ date_from }}"></div>
+  <div class="field-row"><label>To</label><input type="date" name="date_to" value="{{ date_to }}"></div>
+  <button class="button" type="submit">Apply filters</button>
+</form>
+<datalist id="simulator-list">{% for sim in simulators %}<option value="{{ sim }}">{% endfor %}</datalist>
+
+{% if races %}
+<section class="table-panel">
+  <table>
+    <thead>
+      <tr><th>Race</th><th>Simulator</th><th>Date</th><th>Racer</th><th>Position</th><th>Best lap</th></tr>
+    </thead>
+    <tbody>
+      {% for item in races %}
+        {% with race=item.race winner=item.winner best_lap=item.best_lap %}
+        <tr>
+          <td><a href="{% url 'race-detail' race.pk %}">{{ race.name }}</a></td>
+          <td>{{ race.simulator|default:'F1 25' }}</td>
+          <td>{{ race.created_at|date:'d M Y' }}</td>
+          <td>{% if winner %}{{ winner.display_driver_name }}{% else %}Unassigned{% endif %}</td>
+          <td>{% if winner %}P{{ winner.position }}{% else %}--{% endif %}</td>
+          <td>{% if best_lap and best_lap.lap_time %}{{ best_lap.lap_time|floatformat:3 }}s{% else %}--{% endif %}</td>
+        </tr>
+        {% endwith %}
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% else %}
+<div class="empty">No races match the selected filters yet.</div>
+{% endif %}
+{% endblock %}

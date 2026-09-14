@@ -1,0 +1,64 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Overview | Race Control{% endblock %}
+{% block content %}
+<section class="hero"><div><p class="eyebrow">SIM RACING OPERATIONS</p><h1>Race control<br><em>at a glance.</em></h1><p class="lede">Manage rerigged machines, assign drivers, and keep each simulator runtime separate from the physical rig identity.</p></div><div class="signal"><span class="pulse"></span><strong>{{ rigs|length }}</strong><small>rigs registered</small></div></section>
+<section class="section-heading"><h2>Race schedule</h2><a class="button" href="/admin/races/race/add/">+ New race</a></section>
+<section class="race-grid">{% for race in races %}<a class="race-card" href="{% url 'race-detail' race.pk %}"><div class="race-meta"><span class="status status-{{ race.status }}">{{ race.status }}</span><span>{{ race.created_at|date:'d M Y' }}</span></div><h3>{{ race.name }}</h3><p>{{ race.simulator|default:'F1 25' }} <b>/</b> {{ race.track|default:'Track to be confirmed' }} <b>/</b> {{ race.total_laps }} laps</p><div class="card-foot"><span>{{ race.entries.count }} entries</span><span class="arrow">&#8594;</span></div></a>{% empty %}<div class="empty">No races yet. Create one from the admin panel to begin.</div>{% endfor %}</section>
+<section class="grid-two-col">
+  <div>
+    <section class="section-heading"><h2>Connected rigs</h2><span class="muted">{{ rigs|length }} configured</span></section>
+    <section class="rig-list">{% for rig in rigs %}
+      <div class="rig-row">
+        <span class="rig-dot rig-{{ rig.status }}"></span>
+        <div class="rig-text"><strong>{{ rig.display_name|default:rig.name }}</strong><small>{{ rig.hostname|default:rig.ip_address|default:'No machine name' }}</small></div>
+        <span class="muted">{{ rig.assigned_racer.name|default:'Unassigned' }}</span>
+        <span class="status status-{{ rig.status }}">{{ rig.status }}</span>
+      </div>
+    {% empty %}<div class="empty">No rigs discovered yet.</div>{% endfor %}</section>
+  </div>
+  <div>
+    <section class="section-heading"><h2>Rig operator controls</h2></section>
+    <div class="control-stack">
+      {% for rig in rigs %}
+      <form method="post" action="{% url 'update-rig' rig.pk %}" class="stack-card">
+        {% csrf_token %}
+        <h3>{{ rig.display_name|default:rig.name }}</h3>
+        <div class="field-row">
+          <label>Display name</label>
+          <input type="text" name="display_name" value="{{ rig.display_name }}">
+        </div>
+        <div class="field-row">
+          <label>Assigned racer</label>
+          <select name="assigned_racer">
+            <option value="">Unassigned</option>
+            {% for racer in racers %}<option value="{{ racer.pk }}" {% if rig.assigned_racer_id == racer.pk %}selected{% endif %}>{{ racer.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Current game</label>
+          <input type="text" name="current_game" value="{{ rig.current_game }}">
+        </div>
+        <div class="field-row">
+          <label>Mode</label>
+          <select name="game_detection_mode">
+            <option value="manual" {% if rig.game_detection_mode == 'manual' %}selected{% endif %}>Development / Manual</option>
+            <option value="auto" {% if rig.game_detection_mode == 'auto' %}selected{% endif %}>Automatic</option>
+          </select>
+        </div>
+        <button class="button" type="submit">Save rig</button>
+      </form>
+      {% empty %}<div class="empty">No rigs available for editing yet.</div>{% endfor %}
+    </div>
+  </div>
+</section>
+<section class="section-heading"><h2>Racer management</h2></section>
+<div class="control-row">
+  <form method="post" action="{% url 'create-racer' %}" class="inline_form">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="Create racer" required>
+    <input type="text" name="short_name" placeholder="Short name">
+    <button class="button" type="submit">Add racer</button>
+  </form>
+</div>
+<div class="chip-row">{% for racer in racers %}<span class="chip">{{ racer.name }}</span>{% empty %}<span class="muted">No racers yet.</span>{% endfor %}</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ title }} | Race Control Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">SIM RACING CONTROL CENTER</a></h1>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+:root {
+  --primary: #e6502e;
+  --secondary: #1e2830;
+  --header-bg: #121a21;
+  --header-text: #f4f2ee;
+  --body-bg: #eef0ed;
+}
+body {
+  background: var(--body-bg);
+  color: #1d2328;
+}
+#header {
+  background: var(--header-bg);
+  color: var(--header-text);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+#site-name a, #branding h1 a {
+  color: var(--header-text);
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.module h2, .module caption, .app-list a {
+  color: var(--secondary);
+}
+.module, #content-related, #changelist-filter {
+  background: #fff;
+  border: 1px solid #dfe3e1;
+}
+button, input[type="submit"], .button, .submit-row input {
+  background: var(--primary);
+  border: 0;
+  color: white;
+}
+
+</style>
+{% endblock %}

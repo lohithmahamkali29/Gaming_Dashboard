@@ -1,0 +1,24 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Race Control{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'dashboard' %}"><span>RC</span> RACE CONTROL</a>
+    <nav>
+      <a href="{% url 'dashboard' %}">Overview</a>
+      <a href="{% url 'race-history' %}">Race History</a>
+      <a href="{% url 'reports' %}">Reports</a>
+      <a href="{% url 'browse-save' %}">Browse & Save</a>
+      <a href="{% url 'communication' %}">Communication</a>
+      <a href="/admin/">Admin</a>
+    </nav>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+</body>
+</html>

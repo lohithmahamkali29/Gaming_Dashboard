@@ -1,0 +1,187 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Communication | Race Control{% endblock %}
+{% block content %}
+<section class="section-heading"><h2>Communication Status</h2><span class="muted">Demo telemetry / polling mode</span></section>
+
+<div class="summary-grid">
+  <div class="summary-card"><span class="summary-label">Total Devices</span><strong id="summary-total">0</strong></div>
+  <div class="summary-card"><span class="summary-label">Online</span><strong id="summary-online">0</strong></div>
+  <div class="summary-card"><span class="summary-label">Offline</span><strong id="summary-offline">0</strong></div>
+  <div class="summary-card"><span class="summary-label">Telemetry Active</span><strong id="summary-telemetry-active">0</strong></div>
+  <div class="summary-card"><span class="summary-label">Telemetry Disconnected</span><strong id="summary-telemetry-disconnected">0</strong></div>
+</div>
+
+<section class="system-health-block">
+  <h3>System Communication</h3>
+  <div class="health-grid">
+    {% for key, item in system_health.items %}
+    <div class="health-row">
+      <span>{{ item.label }}</span>
+      <span class="health-badge {% if item.status == 'ONLINE' or item.status == 'ACTIVE' or item.status == 'RUNNING' %}good{% elif item.status == 'POLLING MODE' %}warn{% else %}bad{% endif %}">{{ item.status }}</span>
+      <small>{{ item.details }}</small>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="table-panel communication-panel">
+  <table>
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Rig Name</th>
+        <th>Racer</th>
+        <th>Hostname</th>
+        <th>IP Address</th>
+        <th>Current Game</th>
+        <th>Network Status</th>
+        <th>Telemetry Status</th>
+        <th>Last Seen</th>
+        <th>Last Telemetry</th>
+        <th>Heartbeat</th>
+      </tr>
+    </thead>
+    <tbody id="communication-table-body">
+      {% for device in devices %}
+      <tr class="device-row" data-id="{{ device.id }}">
+        <td><span class="status-pill {% if device.status == 'ONLINE' %}online{% elif device.status == 'WARNING' %}warning{% elif device.status == 'OFFLINE' %}offline{% else %}neutral{% endif %}">{{ device.status }}</span></td>
+        <td>{{ device.name }}</td>
+        <td>{{ device.racer }}</td>
+        <td>{{ device.hostname }}</td>
+        <td>{{ device.ip_address }}</td>
+        <td>{{ device.current_game }}</td>
+        <td><span class="signal-badge {% if device.network_status == 'ONLINE' %}online{% elif device.network_status == 'WARNING' %}warning{% else %}offline{% endif %}">{{ device.network_status }}</span></td>
+        <td><span class="signal-badge {% if device.telemetry_status == 'ACTIVE' %}online{% elif device.telemetry_status == 'WARNING' %}warning{% elif device.telemetry_status == 'DISCONNECTED' %}offline{% else %}neutral{% endif %}">{{ device.telemetry_status }}</span></td>
+        <td>{{ device.last_seen }}</td>
+        <td>{{ device.last_telemetry }}</td>
+        <td>{{ device.heartbeat }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="11" class="empty">No devices registered yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card-block detail-panel" id="communication-detail">
+  <h3>Device Details</h3>
+  <div id="detail-content" class="detail-content">
+    <p class="muted">Select a device row to inspect the live communication profile.</p>
+  </div>
+</section>
+
+<section class="card-block">
+  <h3>CLIENT MACHINE SETUP</h3>
+  <div class="setup-flow">
+    <div class="flow-step">Racing PC</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Racing Game</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Game Telemetry</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">UDP / Client Agent</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Ethernet Switch</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Race Control Server</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Telemetry Service</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Live Dashboard</div>
+  </div>
+  <div class="setup-notes">
+    <div class="note-block"><h4>CURRENT MVP</h4><p>Mock telemetry and demo communication values are used to validate the control-room workflow. This is not a claim that real F1 25 telemetry is connected.</p></div>
+    <div class="note-block"><h4>FUTURE PRODUCTION SETUP</h4><p>Configure the client agent on each racing PC, emit telemetry packets over UDP, route traffic through the network switch, and then connect to the Race Control server for live monitoring and race analysis.</p></div>
+  </div>
+</section>
+<script>
+const summaryEl = {
+  total: document.getElementById('summary-total'),
+  online: document.getElementById('summary-online'),
+  offline: document.getElementById('summary-offline'),
+  telemetryActive: document.getElementById('summary-telemetry-active'),
+  telemetryDisconnected: document.getElementById('summary-telemetry-disconnected')
+};
+
+const tableBody = document.getElementById('communication-table-body');
+const detailContent = document.getElementById('detail-content');
+
+function renderStatus(value, isBadge = false) {
+  if (value === 'ONLINE' || value === 'ACTIVE' || value === 'RUNNING') {
+    return isBadge ? '<span class="signal-badge online">' + value + '</span>' : '<span class="status-pill online">' + value + '</span>';
+  }
+  if (value === 'WARNING' || value === 'POLLING MODE') {
+    return isBadge ? '<span class="signal-badge warning">' + value + '</span>' : '<span class="status-pill warning">' + value + '</span>';
+  }
+  if (value === 'OFFLINE' || value === 'DISCONNECTED') {
+    return isBadge ? '<span class="signal-badge offline">' + value + '</span>' : '<span class="status-pill offline">' + value + '</span>';
+  }
+  return isBadge ? '<span class="signal-badge neutral">' + value + '</span>' : '<span class="status-pill neutral">' + value + '</span>';
+}
+
+function renderDetail(device) {
+  detailContent.innerHTML = `
+    <div class="detail-grid">
+      <div><span class="field-label">Rig Name</span><strong>${device.name}</strong></div>
+      <div><span class="field-label">Racer</span><strong>${device.racer}</strong></div>
+      <div><span class="field-label">Hostname</span><strong>${device.hostname}</strong></div>
+      <div><span class="field-label">IP</span><strong>${device.ip_address}</strong></div>
+      <div><span class="field-label">Device ID</span><strong>${device.id}</strong></div>
+      <div><span class="field-label">Network</span><strong>${device.network_status}</strong></div>
+      <div><span class="field-label">Last Seen</span><strong>${device.last_seen}</strong></div>
+      <div><span class="field-label">Latency</span><strong>Demo / N/A</strong></div>
+      <div><span class="field-label">Telemetry Provider</span><strong>${device.provider}</strong></div>
+      <div><span class="field-label">Telemetry Status</span><strong>${device.telemetry_status}</strong></div>
+      <div><span class="field-label">Last Packet</span><strong>${device.last_telemetry}</strong></div>
+      <div><span class="field-label">Packets Received</span><strong>${device.packets_received}</strong></div>
+      <div><span class="field-label">Current Game</span><strong>${device.current_game}</strong></div>
+      <div><span class="field-label">Game Detection Mode</span><strong>${device.game_detection_mode}</strong></div>
+      <div><span class="field-label">Game Status</span><strong>${device.network_status === 'ONLINE' ? 'ACTIVE' : 'DEMO'}</strong></div>
+      <div><span class="field-label">Last Error</span><strong>${device.snippet || 'None'}</strong></div>
+    </div>
+  `;
+}
+
+function renderTable(data) {
+  const devices = data.devices || [];
+  summaryEl.total.textContent = data.summary.total;
+  summaryEl.online.textContent = data.summary.online;
+  summaryEl.offline.textContent = data.summary.offline;
+  summaryEl.telemetryActive.textContent = data.summary.telemetry_active;
+  summaryEl.telemetryDisconnected.textContent = data.summary.telemetry_disconnected;
+
+  tableBody.innerHTML = devices.length ? devices.map((device) => `
+    <tr class="device-row" data-id="${device.id}" tabindex="0">
+      <td>${renderStatus(device.status)}</td>
+      <td>${device.name}</td>
+      <td>${device.racer}</td>
+      <td>${device.hostname}</td>
+      <td>${device.ip_address}</td>
+      <td>${device.current_game}</td>
+      <td>${renderStatus(device.network_status, true)}</td>
+      <td>${renderStatus(device.telemetry_status, true)}</td>
+      <td>${device.last_seen}</td>
+      <td>${device.last_telemetry}</td>
+      <td>${device.heartbeat}</td>
+    </tr>
+  `).join('') : '<tr><td colspan="11" class="empty">No devices registered yet.</td></tr>';
+
+  tableBody.querySelectorAll('.device-row').forEach((row) => {
+    row.addEventListener('click', () => {
+      const device = devices.find(item => String(item.id) === row.dataset.id);
+      if (device) renderDetail(device);
+    });
+  });
+}
+
+async function refreshCommunication() {
+  const response = await fetch('/communication/data/');
+  if (!response.ok) return;
+  const data = await response.json();
+  renderTable(data);
+}
+
+refreshCommunication();
+setInterval(refreshCommunication, 5000);
+</script>
+{% endblock %}

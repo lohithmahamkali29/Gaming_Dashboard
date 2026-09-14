@@ -1,0 +1,55 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Browse & Save | Race Control{% endblock %}
+{% block content %}
+<section class="section-heading"><h2>Browse &amp; Save</h2></section>
+<div class="export-grid">
+  <a class="button" href="/browse-save/export/races/csv/">Export races CSV</a>
+  <a class="button" href="/browse-save/export/races/json/">Export races JSON</a>
+  <a class="button" href="/browse-save/export/racers/csv/">Export racers CSV</a>
+  <a class="button" href="/browse-save/export/racers/json/">Export racers JSON</a>
+  <a class="button" href="/browse-save/export/rigs/csv/">Export rigs CSV</a>
+  <a class="button" href="/browse-save/export/rigs/json/">Export rigs JSON</a>
+</div>
+
+<section class="card-block">
+  <h3>Races</h3>
+  <table>
+    <thead><tr><th>Race</th><th>Simulator</th><th>Track</th><th>Status</th><th>Winner</th></tr></thead>
+    <tbody>
+      {% for race in races %}
+      <tr>
+        <td><a href="{% url 'race-detail' race.pk %}">{{ race.name }}</a></td>
+        <td>{{ race.simulator|default:'F1 25' }}</td>
+        <td>{{ race.track|default:'--' }}</td>
+        <td>{{ race.status }}</td>
+        <td>{% if race.winner %}{{ race.winner.display_driver_name }}{% else %}--{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card-block">
+  <h3>Racers</h3>
+  <table>
+    <thead><tr><th>Name</th><th>Short name</th></tr></thead>
+    <tbody>
+      {% for racer in racers %}
+      <tr><td>{{ racer.name }}</td><td>{{ racer.short_name|default:'--' }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card-block">
+  <h3>Rigs</h3>
+  <table>
+    <thead><tr><th>Rig</th><th>Display name</th><th>Assigned racer</th><th>Current game</th></tr></thead>
+    <tbody>
+      {% for rig in rigs %}
+      <tr><td>{{ rig.name }}</td><td>{{ rig.display_name|default:'--' }}</td><td>{{ rig.assigned_racer.name|default:'Unassigned' }}</td><td>{{ rig.current_game }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

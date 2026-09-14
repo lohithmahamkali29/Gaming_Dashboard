@@ -1,0 +1,145 @@
+/*
+ * This stylesheet is loaded only by RaceEntryAdmin.Media.
+ * Keep the standard Django admin styling on every other model page.
+ */
+body.change-form #content {
+  max-width: 1180px;
+}
+
+body.change-form #content-main {
+  max-width: 980px;
+}
+
+body.change-form .form-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 190px) minmax(220px, 620px);
+  align-items: center;
+  column-gap: 24px;
+  min-height: 58px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e4e8e5;
+}
+
+body.change-form .form-row > div {
+  min-width: 0;
+}
+
+body.change-form .form-row label,
+body.change-form .form-row .required {
+  float: none;
+  width: auto;
+  margin: 0;
+  color: #202a31;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+body.change-form .form-row .help,
+body.change-form .form-row p.help {
+  grid-column: 2;
+  margin: 6px 0 0;
+  color: #5e6a72;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+body.change-form input,
+body.change-form select,
+body.change-form textarea {
+  box-sizing: border-box;
+  min-height: 38px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #aeb9b5;
+  border-radius: 4px;
+  background: #fff;
+  color: #202a31;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+body.change-form input:focus,
+body.change-form select:focus,
+body.change-form textarea:focus {
+  border-color: #e6502e;
+  outline: 2px solid rgba(230, 80, 46, .2);
+  outline-offset: 1px;
+}
+
+body.change-form input[name$="-grid_position"],
+body.change-form input[name$="-position"],
+body.change-form input[name$="-current_lap"],
+body.change-form input[name$="-lap_time"],
+body.change-form input[name$="-total_time"] {
+  max-width: 220px;
+}
+
+body.change-form input[name$="-driver_name"],
+body.change-form input[name$="-car"] {
+  max-width: 620px;
+}
+
+body.change-form .related-widget-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 620px;
+}
+
+body.change-form .related-widget-wrapper select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+body.change-form .related-widget-wrapper-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  min-height: 26px;
+  margin: 0;
+}
+
+body.change-form .related-widget-wrapper-link img {
+  width: 16px;
+  height: 16px;
+}
+
+body.change-form .submit-row {
+  max-width: 980px;
+  margin-top: 24px;
+  padding: 14px 0;
+  border-top: 1px solid #d7ddda;
+  background: transparent;
+}
+
+body.change-form .submit-row input {
+  min-height: 38px;
+  width: auto;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  body.change-form .form-row {
+    display: block;
+    padding: 12px 0 16px;
+  }
+
+  body.change-form .form-row label {
+    display: block;
+    margin-bottom: 7px;
+  }
+
+  body.change-form .form-row .help,
+  body.change-form .form-row p.help {
+    margin-top: 7px;
+  }
+
+  body.change-form .related-widget-wrapper {
+    max-width: none;
+  }
+}

@@ -1,0 +1,76 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Reports | Race Control{% endblock %}
+{% block content %}
+<section class="section-heading"><h2>Reports</h2></section>
+
+<section class="card-block">
+  <h3>Race report</h3>
+  {% if race_report_rows %}
+  <table>
+    <thead><tr><th>Race</th><th>Date</th><th>Simulator</th><th>Track</th><th>Racers</th><th>Winner</th><th>Fastest lap</th></tr></thead>
+    <tbody>
+      {% for row in race_report_rows %}
+      <tr>
+        <td>{{ row.race.name }}</td>
+        <td>{{ row.race.created_at|date:'d M Y' }}</td>
+        <td>{{ row.race.simulator|default:'F1 25' }}</td>
+        <td>{{ row.race.track|default:'Track to be confirmed' }}</td>
+        <td>{{ row.entry_count }}</td>
+        <td>{% if row.winner %}{{ row.winner.display_driver_name }}{% else %}--{% endif %}</td>
+        <td>{% if row.best_lap and row.best_lap.lap_time %}{{ row.best_lap.lap_time|floatformat:3 }}s{% else %}--{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No data available yet.</div>
+  {% endif %}
+</section>
+
+<section class="card-block">
+  <h3>Driver performance</h3>
+  {% if driver_rows %}
+  <table>
+    <thead><tr><th>Driver</th><th>Races</th><th>Wins</th><th>Podiums</th><th>Best lap</th><th>Average position</th><th>Best position</th></tr></thead>
+    <tbody>
+      {% for row in driver_rows %}
+      <tr>
+        <td>{{ row.racer.name }}</td>
+        <td>{{ row.races }}</td>
+        <td>{{ row.wins }}</td>
+        <td>{{ row.podiums }}</td>
+        <td>{% if row.best_lap %}{{ row.best_lap|floatformat:3 }}s{% else %}--{% endif %}</td>
+        <td>{% if row.average_position %}{{ row.average_position }}{% else %}--{% endif %}</td>
+        <td>{% if row.best_position %}P{{ row.best_position }}{% else %}--{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No data available yet.</div>
+  {% endif %}
+</section>
+
+<section class="card-block">
+  <h3>Rig utilization</h3>
+  {% if rig_rows %}
+  <table>
+    <thead><tr><th>Rig</th><th>Total sessions</th><th>Total race time</th><th>Most used game</th><th>Last used</th><th>Current status</th></tr></thead>
+    <tbody>
+      {% for row in rig_rows %}
+      <tr>
+        <td>{{ row.rig.display_name|default:row.rig.name }}</td>
+        <td>{{ row.total_sessions }}</td>
+        <td>{% if row.total_race_time %}{{ row.total_race_time|floatformat:1 }}s{% else %}0s{% endif %}</td>
+        <td>{{ row.most_used_game }}</td>
+        <td>{% if row.last_used %}{{ row.last_used|date:'d M Y' }}{% else %}--{% endif %}</td>
+        <td>{{ row.current_status }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No data available yet.</div>
+  {% endif %}
+</section>
+{% endblock %}
